@@ -31,14 +31,6 @@ In short this macro will perform:
   - [Stealthburner](https://vorondesign.com/voron_stealthburner)
   - Chamber thermistor
 
-### For v0
-
- Just like you did in printer.cfg you will need to go through and uncomment parts of the macro in order to make it work with your printer:
-
- - [Nevermore](https://github.com/nevermore3d/Nevermore_Micro) - if you have one
-
-Other requirements:
-  - Chamber thermistor
 
 ## :warning: Required change in your slicer :warning:
 You need to update your "Start g-code" in your slicer by adding a few lines of code. This will send data about your print temps and chamber temp to klipper for each print.
@@ -198,57 +190,6 @@ gcode:
   G90                                              # Absolut position
 ```
 
-# The print_start macro for v0
-
-As mentioned above you will need to uncomment parts of this macro for it to work on your v0. Replace this macro with your current print_start macro in your printer.cfg
-
-```
-#####################################################################
-#   print_start macro
-#####################################################################
-
-## *** THINGS TO UNCOMMENT: ***
-## Nevermore - if you have one
-
-[gcode_macro PRINT_START]
-gcode:
-  # This part fetches data from your slicer. Such as bed temp, extruder temp, chamber temp and size of your printer.
-  {% set target_bed = params.BED|int %}
-  {% set target_extruder = params.EXTRUDER|int %}
-  {% set target_chamber = params.CHAMBER|default("40")|int %}
-  {% set x_wait = printer.toolhead.axis_maximum.x|float / 2 %}
-  {% set y_wait = printer.toolhead.axis_maximum.y|float / 2 %}
-
-  # Homes the printer and sets absolute positioning
-  G28                   # Full home (XYZ)
-  G90                   # Absolut position
-
-  # Checks if the bed temp is higher than 90c - if so then trigger a heatsoak
-  {% if params.BED|int > 90 %}
-    M106 S255                                         # Turns on the PT-fan
-
-    ##  Uncomment if you have a Nevermore.
-    #SET_PIN PIN=nevermore VALUE=1                    # Turns on the nevermore
-
-    G1 X{x_wait} Y{y_wait} Z15 F9000                  # Goes to center of the bed
-    M190 S{target_bed}                                # Sets target temp for the bed
-    TEMPERATURE_WAIT SENSOR="temperature_sensor chamber" MINIMUM={target_chamber}   # Waits for chamber to reach desired temp
-
-  # If the bed temp is not over 90c then it skips the heatsoak and just heats up to set temp with a 5min soak.
-  {% else %}
-    G1 X{x_wait} Y{y_wait} Z15 F9000                # Goes to center of the bed
-    M190 S{target_bed}                              # Sets target temp for the bed
-    G4 P300000                                      # Waits 5 min for the bedtemp to stabilize
-  {% endif %}
-
-  # Heats up the nozzle up to target via slicer
-  M107                                              # Turns off the PT-fan
-  M109 S{target_extruder}                           # Heats the nozzle to your print temp
-
-  # Create a purge line and starts the print
-  G1 X5 Y4 Z0.4 F10000                             # Moves to starting point
-  G1 X115 E20 F1000                                # Purge line
-```
 ### Interested in more macros?
 
 Interested in learning more about macros?
