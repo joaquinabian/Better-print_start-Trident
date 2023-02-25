@@ -1,4 +1,4 @@
-# A better print_start macro
+# A better print_start macro for Trident
 
 **:warning: This is still in BETA :warning:**
 
@@ -10,20 +10,17 @@ In short this macro will perform:
 
 1) Home the printer
 2) Heatsoak if neccesary
-3) QGL/Z-tilt adjust
+3) Z-tilt adjust
 4) Bed mesh (if activated)
 5) Make a short purge/prime line
 6) Start the print
 
 ## Requirements
 
-### For V2/Trident
-
  Just like you did in printer.cfg you will need to go through and uncomment parts of the macro in order to make it work with your printer:
 
  - Bed mesh (2 lines at 2 locations)
- - Screw_tilt_adjust if your printer is a Trident
- - Quad gantry level if your printer is a V2
+ - Screw_tilt_adjust
  - [Nevermore](https://github.com/nevermore3d/Nevermore_Micro) - if you have one
 
  Other requirements:
@@ -92,9 +89,9 @@ shutdown_value: 0
 With this macro you have the option to turn the nevermore ON. This means that if you uncomment the logic for the nevermore it will be ON until you turn it off. It's recommended to add logic to your print_end macro and turning the nevermore OFF. This can be done by adding ```SET_PIN PIN=nevermore VALUE=0``` to your print_end macro.
 
 
-# The print_start macro for V2/Trident
+# The print_start macro for Trident
 
-As mentioned above you will need to uncomment parts of this macro for it to work on your V2 or Trident. Replace this macro with your current print_start macro in your printer.cfg.
+As mentioned above you will need to uncomment parts of this macro for it to work on your Trident. Replace this macro with your current print_start macro in your printer.cfg.
 
 ```
 #####################################################################
@@ -103,9 +100,8 @@ As mentioned above you will need to uncomment parts of this macro for it to work
 
 ## *** THINGS TO UNCOMMENT: ***
 ## Bed mesh (2 lines at 2 locations)
-## Screw_tilt_adjust if your printer is a Trident
-## Quad gantry level if your printer is a V2
-## Nevermore - if you have one
+## Screw_tilt_adjust
+## Nevermore
 
 [gcode_macro PRINT_START]
 gcode:
@@ -130,8 +126,8 @@ gcode:
     STATUS_HEATING                                      # Sets SB-leds to heating-mode
     M106 S255                                           # Turns on the PT-fan
 
-    ##  Uncomment if you have a Nevermore.
-    #SET_PIN PIN=nevermore VALUE=1                      # Turns on the nevermore
+    ##  Nevermore.
+    SET_PIN PIN=nevermore VALUE=1                       # Turns on the nevermore
 
     G1 X{x_wait} Y{y_wait} Z15 F9000                    # Goes to center of the bed
     M190 S{target_bed}                                  # Sets the target temp for the bed
@@ -152,17 +148,11 @@ gcode:
   SET_DISPLAY_TEXT MSG="Hotend: 150c"          # Displays info
   M109 S150                                    # Heats the nozzle to 150c
 
-  ##  Uncomment for Trident (screw_tilt_adjust)
-  #SET_DISPLAY_TEXT MSG="Z-tilt adjust"     # Displays info
-  #STATUS_LEVELING                          # Sets SB-leds to leveling-mode
-  #Z_TILT_ADJUST                            # Levels the buildplate via z_tilt_adjust
-  #G28 Z                                    # Homes Z again after z_tilt_adjust
-
-  ##  Uncomment for V2 (Quad gantry level AKA QGL)
-  #SET_DISPLAY_TEXT MSG="QGL"      # Displays info
-  #STATUS_LEVELING                 # Sets SB-leds to leveling-mode
-  #quad_gantry_level               # Levels the buildplate via QGL
-  #G28 Z                           # Homes Z again after QGL
+  ##  Screw_tilt_adjust
+  SET_DISPLAY_TEXT MSG="Z-tilt adjust"     # Displays info
+  STATUS_LEVELING                          # Sets SB-leds to leveling-mode
+  Z_TILT_ADJUST                            # Levels the buildplate via z_tilt_adjust
+  G28 Z                                    # Homes Z again after z_tilt_adjust
 
   ##  Uncomment for Klicky auto-z
   #CALIBRATE_Z                                 # Calibrates Z-offset with klicky
